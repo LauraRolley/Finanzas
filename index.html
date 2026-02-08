@@ -3,100 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Finanzas Personales</title>
+    <title>Gestor de Finanzas | Atelier Financiero</title>
+    <!-- Tailwind para estructura rápida -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .card { @apply bg-white p-6 rounded-2xl shadow-sm border border-gray-100; }
-        .input-field { @apply w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all; }
-        .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2; }
-        .btn-danger { @apply text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors; }
-    </style>
+    <!-- Vinculación al archivo CSS externo -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 min-h-screen pb-12">
+<body class="pb-12">
 
-    <nav class="bg-white border-b border-gray-100 mb-8 p-4">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800">Finanzas<span class="text-green-600">Personales</span></h1>
-            <div id="current-month" class="text-gray-500 font-medium capitalize"></div>
+    <nav class="mb-12 pt-10 px-6">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 class="nav-logo">Atelier <span>Financiero</span></h1>
+            <div id="current-month" class="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-[#dbcb96] pb-1 opacity-70"></div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <main class="max-w-5xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        <!-- Dashboard / Resumen -->
-        <div class="lg:col-span-1 space-y-6">
-            <div class="card text-center">
-                <h2 class="text-gray-500 text-sm font-semibold uppercase tracking-wider mb-2">Saldo Restante</h2>
-                <p id="total-balance" class="text-4xl font-bold text-gray-900">0.00€</p>
-                <div class="mt-4 grid grid-cols-2 gap-4">
-                    <div class="bg-green-50 p-3 rounded-xl">
-                        <span class="text-xs text-green-600 font-bold block">Ingresos</span>
-                        <span id="total-income" class="text-lg font-bold text-green-700">0€</span>
+        <!-- Dashboard Izquierdo -->
+        <div class="lg:col-span-4 space-y-8">
+            <div class="card text-center relative overflow-hidden" style="border-top: 4px solid #632626">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 opacity-50">Saldo en Cuenta</h2>
+                <p id="total-balance" class="text-5xl font-serif text-gray-900 mb-8">0.00€</p>
+                
+                <div class="grid grid-cols-2 gap-4 border-t border-gray-50 pt-6">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 opacity-50">Entradas</span>
+                        <span id="total-income" class="text-lg font-medium" style="color: #bf8b67">0€</span>
                     </div>
-                    <div class="bg-red-50 p-3 rounded-xl">
-                        <span class="text-xs text-red-600 font-bold block">Gastos</span>
-                        <span id="total-expenses" class="text-lg font-bold text-red-700">0€</span>
+                    <div class="border-l border-gray-50">
+                        <span class="text-[10px] font-bold uppercase tracking-wider block mb-1 opacity-50">Salidas</span>
+                        <span id="total-expenses" class="text-lg font-medium" style="color: #9d5353">0€</span>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Distribución del Gasto</h3>
-                <canvas id="financeChart" width="400" height="400"></canvas>
+                <h3 class="text-xs font-bold uppercase tracking-[0.15em] mb-6 text-center opacity-60">Distribución de Gastos</h3>
+                <canvas id="financeChart"></canvas>
             </div>
         </div>
 
-        <!-- Formularios y Listas -->
-        <div class="lg:col-span-2 space-y-6">
+        <!-- Columna Derecha -->
+        <div class="lg:col-span-8 space-y-8">
             
-            <!-- Entrada de Datos -->
+            <!-- Formulario -->
             <div class="card">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Añadir Nuevo Registro</h3>
-                <form id="finance-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="md:col-span-1">
-                        <label class="block text-xs font-bold text-gray-500 mb-1">Concepto</label>
-                        <input type="text" id="desc" placeholder="Ej: Gimnasio" class="input-field" required>
+                <h3 class="font-serif text-xl mb-6">Añadir Movimiento</h3>
+                <form id="finance-form" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 opacity-60">Descripción</label>
+                        <input type="text" id="desc" placeholder="Ej. Especias para Chai" class="input-field" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">Monto (€)</label>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 opacity-60">Monto (€)</label>
                         <input type="number" id="amount" step="0.01" placeholder="0.00" class="input-field" required>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1">Categoría</label>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 opacity-60">Categoría</label>
                         <select id="category" class="input-field">
                             <option value="Ingreso">Ingreso (+)</option>
                             <option value="Fijo">Gasto Fijo</option>
                             <option value="Variable">Gasto Variable</option>
-                            <option value="Ahorro">Ahorro / Inversión</option>
+                            <option value="Ahorro">Ahorros / Inversión</option>
                         </select>
                     </div>
                     <div class="flex items-end">
-                        <button type="submit" class="btn-primary w-full">Añadir</button>
+                        <button type="submit" class="btn-primary">Registrar</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Tabla de Registros -->
+            <!-- Listado -->
             <div class="card overflow-hidden">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">Detalle de Movimientos</h3>
-                    <button onclick="clearData()" class="text-xs text-red-400 hover:text-red-600 underline">Borrar todo</button>
+                <div class="flex justify-between items-baseline mb-8">
+                    <h3 class="font-serif text-xl">Historial Reciente</h3>
+                    <button onclick="clearData()" class="text-[9px] font-bold text-gray-400 hover:text-[#632626] uppercase tracking-widest transition-colors">Limpiar Datos</button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="text-gray-400 text-sm uppercase">
-                                <th class="pb-4 font-medium">Concepto</th>
-                                <th class="pb-4 font-medium">Categoría</th>
-                                <th class="pb-4 font-medium">Monto</th>
-                                <th class="pb-4 font-medium text-right">Acción</th>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Etiqueta</th>
+                                <th>Valor</th>
+                                <th class="text-right"></th>
                             </tr>
                         </thead>
                         <tbody id="finance-list" class="divide-y divide-gray-50">
-                            <!-- Los items se cargarán aquí -->
+                            <!-- JS inyecta datos -->
                         </tbody>
                     </table>
                 </div>
@@ -106,7 +103,8 @@
     </main>
 
     <script>
-        let transactions = JSON.parse(localStorage.getItem('finanzas_data')) || [];
+        // Lógica de funcionamiento
+        let transactions = JSON.parse(localStorage.getItem('finanzas_spice_data')) || [];
         let myChart;
 
         const form = document.getElementById('finance-form');
@@ -116,35 +114,32 @@
         const expenseDisplay = document.getElementById('total-expenses');
         const monthDisplay = document.getElementById('current-month');
 
-        // Configurar fecha actual
+        // Configurar mes actual
         const options = { month: 'long', year: 'numeric' };
         monthDisplay.innerText = new Intl.DateTimeFormat('es-ES', options).format(new Date());
 
         function updateUI() {
             list.innerHTML = '';
-            let income = 0;
-            let fixed = 0;
-            let variable = 0;
-            let savings = 0;
+            let income = 0, fixed = 0, variable = 0, savings = 0;
 
             transactions.forEach((t, index) => {
                 const isIncome = t.category === 'Ingreso';
                 const row = document.createElement('tr');
-                row.className = "hover:bg-gray-50 transition-colors";
+                row.className = "group transition-colors";
                 row.innerHTML = `
-                    <td class="py-4 font-medium text-gray-800">${t.desc}</td>
-                    <td class="py-4">
-                        <span class="px-2 py-1 rounded-md text-xs font-bold ${getBadgeColor(t.category)}">
+                    <td class="py-5 font-medium text-sm text-[#2d1a1a]">${t.desc}</td>
+                    <td class="py-5">
+                        <span class="badge ${getBadgeClass(t.category)}">
                             ${t.category}
                         </span>
                     </td>
-                    <td class="py-4 font-bold ${isIncome ? 'text-green-600' : 'text-gray-700'}">
+                    <td class="py-5 font-medium text-sm ${isIncome ? 'text-[#bf8b67]' : 'text-gray-800'}">
                         ${isIncome ? '+' : '-'}${t.amount.toFixed(2)}€
                     </td>
-                    <td class="py-4 text-right">
-                        <button onclick="deleteTransaction(${index})" class="btn-danger">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <td class="py-5 text-right">
+                        <button onclick="deleteTransaction(${index})" class="btn-danger md:opacity-0 group-hover:opacity-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </button>
                     </td>
@@ -161,21 +156,22 @@
             const balance = income - totalExpenses;
 
             balanceDisplay.innerText = `${balance.toFixed(2)}€`;
-            balanceDisplay.className = `text-4xl font-bold ${balance >= 0 ? 'text-gray-900' : 'text-red-600'}`;
+            balanceDisplay.style.color = balance < 0 ? '#632626' : '#2d1a1a';
+            
             incomeDisplay.innerText = `${income.toFixed(2)}€`;
             expenseDisplay.innerText = `${totalExpenses.toFixed(2)}€`;
 
             updateChart(fixed, variable, savings);
-            localStorage.setItem('finanzas_data', JSON.stringify(transactions));
+            localStorage.setItem('finanzas_spice_data', JSON.stringify(transactions));
         }
 
-        function getBadgeColor(cat) {
+        function getBadgeClass(cat) {
             switch(cat) {
-                case 'Ingreso': return 'bg-green-100 text-green-700';
-                case 'Fijo': return 'bg-blue-100 text-blue-700';
-                case 'Variable': return 'bg-orange-100 text-orange-700';
-                case 'Ahorro': return 'bg-purple-100 text-purple-700';
-                default: return 'bg-gray-100 text-gray-700';
+                case 'Ingreso': return 'badge-ingreso';
+                case 'Fijo': return 'badge-fijo';
+                case 'Variable': return 'badge-variable';
+                case 'Ahorro': return 'badge-ahorro';
+                default: return '';
             }
         }
 
@@ -186,7 +182,7 @@
             const category = document.getElementById('category').value;
 
             if (desc && amount) {
-                transactions.push({ desc, amount, category });
+                transactions.unshift({ desc, amount, category });
                 updateUI();
                 form.reset();
             }
@@ -198,7 +194,7 @@
         }
 
         function clearData() {
-            if(confirm('¿Estás seguro de que quieres borrar todos los datos?')) {
+            if(confirm('¿Borrar todos los registros?')) {
                 transactions = [];
                 updateUI();
             }
@@ -206,31 +202,39 @@
 
         function updateChart(fixed, variable, savings) {
             const ctx = document.getElementById('financeChart').getContext('2d');
-            
             if (myChart) myChart.destroy();
             
             myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Gastos Fijos', 'Gastos Variables', 'Ahorro'],
+                    labels: ['Fijo', 'Variable', 'Ahorro'],
                     datasets: [{
                         data: [fixed, variable, savings],
-                        backgroundColor: ['#3b82f6', '#f97316', '#a855f7'],
-                        borderWidth: 0,
+                        backgroundColor: ['#632626', '#9d5353', '#bf8b67'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff',
                         hoverOffset: 10
                     }]
                 },
                 options: {
+                    cutout: '82%',
                     responsive: true,
                     plugins: {
-                        legend: { position: 'bottom' }
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 25,
+                                font: { size: 10, family: 'Plus Jakarta Sans', weight: '500' }
+                            }
+                        }
                     }
                 }
             });
         }
 
-        // Carga inicial
         updateUI();
     </script>
 </body>
 </html>
+<script src="script.js"></script>

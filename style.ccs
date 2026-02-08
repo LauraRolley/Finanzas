@@ -1,0 +1,144 @@
+/* Importación de tipografías */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+    /* Paleta de colores "Spice" */
+    --red-chai: #632626;
+    --masala: #9d5353;
+    --cinnamon: #bf8b67;
+    --cardamom: #dbcb96;
+    --fondo-suave: #f9f7f2;
+    --texto-oscuro: #2d1a1a;
+    --texto-claro: #fcfaf7;
+}
+
+body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background-color: var(--fondo-suave);
+    color: var(--texto-oscuro);
+    margin: 0;
+    min-height: 100vh;
+}
+
+h1, h2, h3, .font-serif {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Tarjetas y Contenedores */
+.card { 
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(99, 38, 38, 0.05);
+    border: 1px solid rgba(191, 139, 103, 0.1);
+}
+
+/* Campos de entrada */
+.input-field { 
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #f3f4f6;
+    border-radius: 0.75rem;
+    background-color: #fdfcf9;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--cinnamon);
+    box-shadow: 0 0 0 1px var(--cinnamon);
+}
+
+/* Botón Principal - Registrar */
+.btn-primary { 
+    background-color: var(--red-chai);
+    color: var(--texto-claro) !important;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    opacity: 0.95;
+}
+
+.btn-primary:active {
+    transform: scale(0.95);
+}
+
+/* Botón de eliminar */
+.btn-danger { 
+    color: var(--masala);
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    color: #b91c1c;
+    background-color: #fef2f2;
+}
+
+/* Logotipo y Navegación */
+.nav-logo {
+    font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
+    font-size: 1.875rem;
+}
+
+.nav-logo span {
+    color: var(--cinnamon);
+    font-style: italic;
+    font-weight: 400;
+}
+
+/* Etiquetas (Badges) */
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: inline-block;
+}
+
+.badge-ingreso { background-color: #f0e9d2; color: #4a4532; }
+.badge-fijo { background-color: #efdfdf; color: var(--red-chai); }
+.badge-variable { background-color: #f7ede6; color: var(--cinnamon); }
+.badge-ahorro { background-color: #e5dfd9; color: var(--texto-oscuro); }
+
+/* Tabla */
+table thead th {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--cinnamon);
+    text-transform: uppercase;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.group:hover {
+    background-color: #fffcf9;
+}
+
+/* Gráfico */
+#financeChart {
+    max-width: 240px;
+    margin: 0 auto;
+}
