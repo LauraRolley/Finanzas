@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Finanzas Personales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .card { @apply bg-white p-6 rounded-2xl shadow-sm border border-gray-100; }
+        .input-field { @apply w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all; }
+        .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2; }
+        .btn-danger { @apply text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen pb-12">
+
+    <nav class="bg-white border-b border-gray-100 mb-8 p-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">Finanzas<span class="text-green-600">Personales</span></h1>
+            <div id="current-month" class="text-gray-500 font-medium capitalize"></div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Dashboard / Resumen -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="card text-center">
+                <h2 class="text-gray-500 text-sm font-semibold uppercase tracking-wider mb-2">Saldo Restante</h2>
+                <p id="total-balance" class="text-4xl font-bold text-gray-900">0.00€</p>
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                    <div class="bg-green-50 p-3 rounded-xl">
+                        <span class="text-xs text-green-600 font-bold block">Ingresos</span>
+                        <span id="total-income" class="text-lg font-bold text-green-700">0€</span>
+                    </div>
+                    <div class="bg-red-50 p-3 rounded-xl">
+                        <span class="text-xs text-red-600 font-bold block">Gastos</span>
+                        <span id="total-expenses" class="text-lg font-bold text-red-700">0€</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Distribución del Gasto</h3>
+                <canvas id="financeChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <!-- Formularios y Listas -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Entrada de Datos -->
+            <div class="card">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Añadir Nuevo Registro</h3>
+                <form id="finance-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-1">
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Concepto</label>
+                        <input type="text" id="desc" placeholder="Ej: Gimnasio" class="input-field" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Monto (€)</label>
+                        <input type="number" id="amount" step="0.01" placeholder="0.00" class="input-field" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">Categoría</label>
+                        <select id="category" class="input-field">
+                            <option value="Ingreso">Ingreso (+)</option>
+                            <option value="Fijo">Gasto Fijo</option>
+                            <option value="Variable">Gasto Variable</option>
+                            <option value="Ahorro">Ahorro / Inversión</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="btn-primary w-full">Añadir</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla de Registros -->
+            <div class="card overflow-hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Detalle de Movimientos</h3>
+                    <button onclick="clearData()" class="text-xs text-red-400 hover:text-red-600 underline">Borrar todo</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-400 text-sm uppercase">
+                                <th class="pb-4 font-medium">Concepto</th>
+                                <th class="pb-4 font-medium">Categoría</th>
+                                <th class="pb-4 font-medium">Monto</th>
+                                <th class="pb-4 font-medium text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finance-list" class="divide-y divide-gray-50">
+                            <!-- Los items se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let transactions = JSON.parse(localStorage.getItem('finanzas_data')) || [];
+        let myChart;
+
+        const form = document.getElementById('finance-form');
+        const list = document.getElementById('finance-list');
+        const balanceDisplay = document.getElementById('total-balance');
+        const incomeDisplay = document.getElementById('total-income');
+        const expenseDisplay = document.getElementById('total-expenses');
+        const monthDisplay = document.getElementById('current-month');
+
+        // Configurar fecha actual
+        const options = { month: 'long', year: 'numeric' };
+        monthDisplay.innerText = new Intl.DateTimeFormat('es-ES', options).format(new Date());
+
+        function updateUI() {
+            list.innerHTML = '';
+            let income = 0;
+            let fixed = 0;
+            let variable = 0;
+            let savings = 0;
+
+            transactions.forEach((t, index) => {
+                const isIncome = t.category === 'Ingreso';
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 transition-colors";
+                row.innerHTML = `
+                    <td class="py-4 font-medium text-gray-800">${t.desc}</td>
+                    <td class="py-4">
+                        <span class="px-2 py-1 rounded-md text-xs font-bold ${getBadgeColor(t.category)}">
+                            ${t.category}
+                        </span>
+                    </td>
+                    <td class="py-4 font-bold ${isIncome ? 'text-green-600' : 'text-gray-700'}">
+                        ${isIncome ? '+' : '-'}${t.amount.toFixed(2)}€
+                    </td>
+                    <td class="py-4 text-right">
+                        <button onclick="deleteTransaction(${index})" class="btn-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                list.appendChild(row);
+
+                if (t.category === 'Ingreso') income += t.amount;
+                else if (t.category === 'Fijo') fixed += t.amount;
+                else if (t.category === 'Variable') variable += t.amount;
+                else if (t.category === 'Ahorro') savings += t.amount;
+            });
+
+            const totalExpenses = fixed + variable + savings;
+            const balance = income - totalExpenses;
+
+            balanceDisplay.innerText = `${balance.toFixed(2)}€`;
+            balanceDisplay.className = `text-4xl font-bold ${balance >= 0 ? 'text-gray-900' : 'text-red-600'}`;
+            incomeDisplay.innerText = `${income.toFixed(2)}€`;
+            expenseDisplay.innerText = `${totalExpenses.toFixed(2)}€`;
+
+            updateChart(fixed, variable, savings);
+            localStorage.setItem('finanzas_data', JSON.stringify(transactions));
+        }
+
+        function getBadgeColor(cat) {
+            switch(cat) {
+                case 'Ingreso': return 'bg-green-100 text-green-700';
+                case 'Fijo': return 'bg-blue-100 text-blue-700';
+                case 'Variable': return 'bg-orange-100 text-orange-700';
+                case 'Ahorro': return 'bg-purple-100 text-purple-700';
+                default: return 'bg-gray-100 text-gray-700';
+            }
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const desc = document.getElementById('desc').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const category = document.getElementById('category').value;
+
+            if (desc && amount) {
+                transactions.push({ desc, amount, category });
+                updateUI();
+                form.reset();
+            }
+        });
+
+        function deleteTransaction(index) {
+            transactions.splice(index, 1);
+            updateUI();
+        }
+
+        function clearData() {
+            if(confirm('¿Estás seguro de que quieres borrar todos los datos?')) {
+                transactions = [];
+                updateUI();
+            }
+        }
+
+        function updateChart(fixed, variable, savings) {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            
+            if (myChart) myChart.destroy();
+            
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Gastos Fijos', 'Gastos Variables', 'Ahorro'],
+                    datasets: [{
+                        data: [fixed, variable, savings],
+                        backgroundColor: ['#3b82f6', '#f97316', '#a855f7'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // Carga inicial
+        updateUI();
+    </script>
+</body>
+</html>
